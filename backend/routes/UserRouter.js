@@ -69,7 +69,7 @@ router.get('/cart/:customer_id', async (req, res, next) => {
     }
 });
 
-router.post('/history/:customer_id', async (req, res, next) => {
+router.get('/history/:customer_id', async (req, res, next) => {
     try {
         const result = await User.getCart(req.params.customer_id);
         if (result.error)
