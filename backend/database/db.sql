@@ -13,7 +13,7 @@ create table Product (
     seller_id int,
     product_name varchar(20),
     price int,
-    qunatity int,
+    quantity int,
     foreign key (seller_id) references User (user_id) on delete cascade
 );
 
@@ -21,7 +21,7 @@ create table Cart (
 	customer_id int,  
     product_id int, 
     item_state enum("Cart", "Bought"),
-    purchased_date date,
+    quantity int,
     primary key (customer_id, product_id),
     foreign key (customer_id) references User (user_id) on delete cascade,
     foreign key (product_id) references Product (product_id) on delete cascade

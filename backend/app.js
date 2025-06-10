@@ -12,19 +12,19 @@ app.use(cors({
 }));
 
 // routers
-const User = require('./routes/UserRouter');
-const Customer = require('./routes/CustomerRouter');
-const Seller = require('./routes/SellerRouter');
+const UserRouter = require('./routes/UserRouter');
+const CustomerRouter = require('./routes/CustomerRouter');
+const SellerRouter = require('./routes/SellerRouter');
 
-// endpoints
-app.use('/', (req, res) => {
+// endpoints 
+app.get('/', (req, res) => {
     console.log("Server has started....");
     res.json({ message: "Server has started....." });
 });
 
-app.use('/user', User);
-app.use('/customer', Customer);
-app.use('/seller', Seller);
+app.use('/user', UserRouter);
+app.use('/customer', CustomerRouter);
+app.use('/seller', SellerRouter);
 
 // error handling
 app.use((err, req, res, next) => {

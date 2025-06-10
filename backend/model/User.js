@@ -55,29 +55,38 @@ const User = {
         return { error: "Wrong password" }
     },
 
-    getCart: async ({ user_id }) => {
-        return await pool.query(`
-            select * from Cart where customer_id = ?;    
+    getCart: async (user_id) => {
+        const [rows] = await pool.query(`
+            select * from Cart where customer_id = ? and item_state = "Cart";    
         `, [user_id]);
+        return rows;
     },
 
-    getMyProducts: async ({ user_id }) => {
-        return await pool.query(`
+    getMyProducts: async (user_id) => {
+        const [rows] = await pool.query(`
             select * from Product where seller_id = ?;    
         `, [user_id]);
+        console.log(rows);
+        return rows;
     },
 
-    getAllProducts: async ({ user_id }) => {
-        return await pool.query(`
+    getAllProducts: async (user_id) => {
+        const [rows] = await pool.query(`
             select * from Product where seller_id != ?;    
         `, [user_id]);
+        return rows;
     },
 
-    getHistory: async ({ user_id }) => {
-        const item_state = "Bought";
-        return await pool.query(`
-            select * from Cart where customer_id = ? and item_state = ?    
-        `, [user_id, item_state]);
+    getHistory: async (user_id) => {
+        try {
+            const [rows] = await pool.query(`
+                select * from Cart where customer_id = ? and item_state = "Bought"    
+            `, [user_id]);
+            return rows;
+        } catch (error) {
+            console.log(error);
+            return { error: error.message };
+        }
     }
 };
 

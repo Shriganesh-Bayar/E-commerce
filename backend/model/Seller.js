@@ -10,7 +10,7 @@ const Seller = {
             return error({ error: "Product of this user already exist" });
         const [add] = await pool.query(`
             insert into Product (seller_id, product_name, price, quantity) values
-            (?, ?, ?); 
+            (?, ?, ?, ?); 
         `, [seller_id, product_name, price, quantity]);
         return ({
             success: true,
@@ -22,25 +22,31 @@ const Seller = {
         const [check] = await pool.query(`
             select * from Product where product_id = ?;
         `, [product_id]);
+        // console.log(check.length);
         if (check.length === 0)
-            return error({ error: "Product of this user already exist" });
+            return error({ error: "Product of this user doesn't exist" });
         const [update] = await pool.query(`
             update Product set price = ?, quantity = ? where product_id = ?    
         `, [newPrice, newQuantity, product_id]);
         return ({ success: true });
     },
 
-    removeProduct: async ({ product_id }) => {
-        const [check] = await pool.query(`
-            select * from Product where product_id = ?;
-        `, [product_id]);
-        if (check.length === 0)
-            return error({ error: "Product of this user already exist" });
-        const [remove] = await pool.query(`
-            delete from Product where product_id = ?;    
-        `, [product_id]);
-        return ({ success: true });
+    removeProduct: async (product_id) => {
+        try {
+            const [check] = await pool.query(`
+                select * from Product where product_id = ?;
+            `, [product_id]);
+            if (check.length === 0)
+                return ({ error: "Product of this user doesn't exist" });
+            const [remove] = await pool.query(`
+                delete from Product where product_id = ?;
+            `, [product_id]);
+            return ({ success: true });
+        } catch (error) {
+            console.log(error);
+            next(error);
+        }
     }
-};
+};  
 
 module.exports = Seller;
