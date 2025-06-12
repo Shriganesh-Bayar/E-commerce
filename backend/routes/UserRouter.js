@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../model/User');
 const jwt = require('jsonwebtoken');
+const authenticate = require('../middleware/authnetication')
 
 router.post('/login', async (req, res, next) => {
     try {
@@ -35,7 +36,7 @@ router.post('/register', async (req, res, next) => {
     }
 });
 
-router.get('/myProducts/:seller_id', async (req, res, next) => {
+router.get('/myProducts/:seller_id', authenticate, async (req, res, next) => {
     try {
         const result = await User.getMyProducts(req.params.seller_id);
         if (result.error)
@@ -47,7 +48,7 @@ router.get('/myProducts/:seller_id', async (req, res, next) => {
     }
 });
 
-router.get('/allProducts/:seller_id', async (req, res, next) => {
+router.get('/allProducts/:seller_id', authenticate, async (req, res, next) => {
     try {
         const result = await User.getAllProducts(req.params.seller_id);
         if (result.error)
@@ -59,7 +60,7 @@ router.get('/allProducts/:seller_id', async (req, res, next) => {
     }
 });
 
-router.get('/cart/:customer_id', async (req, res, next) => {
+router.get('/cart/:customer_id', authenticate, async (req, res, next) => {
     try {
         const result = await User.getCart(req.params.customer_id);
         if (result.error)
@@ -71,7 +72,7 @@ router.get('/cart/:customer_id', async (req, res, next) => {
     }
 });
 
-router.get('/history/:customer_id', async (req, res, next) => {
+router.get('/history/:customer_id', authenticate, async (req, res, next) => {
     try {
         const result = await User.getHistory(req.params.customer_id);
         if (result.error)

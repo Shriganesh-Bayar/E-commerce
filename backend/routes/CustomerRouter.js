@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const Customer = require('../model/Customer');
+const authenticate = require('../middleware/authnetication')
 
-router.get('/', async (req, res, next) => {
+router.get('/',  authenticate, async (req, res, next) => {
     res.json({ message: "In the customer router..." });
 });
 
-router.post('/add', async (req, res, next) => {
+router.post('/add',  authenticate, async (req, res, next) => {
     try {
         const result = await Customer.addCart(req.body.data);
         if (result.error)
@@ -18,7 +19,7 @@ router.post('/add', async (req, res, next) => {
     }
 });
 
-router.get('/cartBuy/:customer_id', async (req, res, next) => {
+router.get('/cartBuy/:customer_id',  authenticate, async (req, res, next) => {
     try {
         const result = await Customer.buyCart(req.params.customer_id);
         if (result.error)
@@ -29,7 +30,7 @@ router.get('/cartBuy/:customer_id', async (req, res, next) => {
     }
 });
 
-router.get('/removeItem/:product_id/:customer_id', async (req, res, next) => {
+router.get('/removeItem/:product_id/:customer_id',  authenticate, async (req, res, next) => {
     try {
         const result = await Customer.removeCart(req.params);
         if (result.error)
@@ -40,7 +41,7 @@ router.get('/removeItem/:product_id/:customer_id', async (req, res, next) => {
     }
 });
 
-router.post('/cartUpdate', async (req, res, next) => {
+router.post('/cartUpdate',  authenticate, async (req, res, next) => {
     try {
         const result = await Customer.changeNumberinCart(req.body.data);
         if (result.error)
