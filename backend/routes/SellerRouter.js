@@ -25,7 +25,7 @@ router.get('/removeProduct/:product_id',  authenticate, async (req, res, next) =
     }
 });
 
-router.post('/updateProduct',  authenticate, async (req, res, next) => {
+router.post('/updateProduct', authenticate, async (req, res, next) => {
     try {
         const result = await Seller.updateProduct(req.body.data);
         if (result.error)
