@@ -3,18 +3,20 @@ const query = require('query');
 
 const Customer = {
     addCart: async ({ customer_id, product_id, quantity }) => {
-        console.log(customer_id, product_id, quantity);
         try {
-            const item_state = "Cart";
             const [check] = await pool.query(`
-            select * from Cart where customer_id = ? and product_id = ?;
-        `, [customer_id, product_id]);
-            if (check.length !== 0)
-                return error({ error: "Product is already present in cart" });
-            const [add] = await pool.query(`
-            insert into Cart (customer_id, product_id, item_state, quantity) values
-            (?, ?, ?, ?); 
-        `, [customer_id, product_id, item_state, quantity]);
+                select 1 from Cart where customer_id = ? and product_id = ?;
+            `, [customer_id, product_id]);
+            if (check.length !== 0) {
+                await pool.query(`
+                    update Cart set quantity = quantity + ? where customer_id = ? and product_id = ?;
+                `, [quantity, customer_id, product_id]);
+            } else {
+                await pool.query(`
+                    insert into Cart (customer_id, product_id, quantity, price) values
+                    (?, ?, ?, ?); 
+                `, [customer_id, product_id, quantity, quantity * unit_price]);
+            }``
             return ({ success: true });
         } catch (error) {
             console.log(error);
@@ -23,51 +25,93 @@ const Customer = {
     },
 
     buyCart: async (customer_id) => {
+        const con = await pool.getConnection();
         try {
-            const item_state = "Bought";
-            const [check] = await pool.query(`
-                select product_id, quantity from Cart where customer_id = ?;
+            await con.beginTransaction();
+            const [check] = await con.query(`
+                select 
+                    c.product_id, 
+                    c.quantity as quantity, 
+                    p.price as unit_price,
+                    p.quantity as current_quantity
+                from Cart c Join Product p on c.product_id = p.product_id
+                where customer_id = ?;
             `, [customer_id]);
             console.log(check);
-            if (check.length === 0)
+            if (check.length === 0) {
+                await con.rollback();
                 return ({ error: "No product is added by this customer" });
-            const [buy] = await pool.query(`
-                update Cart set item_state = ? where customer_id = ?;
-            `, [item_state, customer_id]);
-            for (const { product_id, quantity } of check) {
-                await pool.query(`
-                    update Product set quantity = quantity - ? where product_id = ?;
-                `, [quantity, product_id]);
             }
+
+            const insufficientItem = check.find(
+                item => item.stock_quantity < item.cart_quantity
+            );
+            if (insufficientItem) {
+                await con.rollback();
+                return ({ error: "Insuffienct products" });
+            }
+
+            for (const { product_id, quantity, unit_price } of check) {
+                const price = quantity * unit_price;
+                await con.query(`
+                    insert into Transaction (customer_id, product_id, quantity, price) values (?, ?, ?, ?)
+                `, [customer_id, product_id, quantity, price]);
+
+                await con.query(`
+                    update Product set quantity = quantity - ? where product_id = ?                 
+                `, [quantity, product_id])
+            }
+
+            await con.query(`
+                delete from Cart where customer_id = ?
+            `, [customer_id]);
+
+            await con.commit();
             return ({ success: true });
         } catch (error) {
+            await con.rollback();
             console.log(error);
             return { error: error.message };
+        } finally {
+            await con.release();
         }
     },
 
     removeCart: async ({ customer_id, product_id }) => {
-        const [check] = await pool.query(`
-            select * from Cart where customer_id = ?;
-        `, [customer_id]);
-        if (check.length === 0)
-            return error({ error: "No product is added by this customer" });
-        const [remove] = await pool.query(`
-            delete from Cart where customer_id = ? and product_id = ?;    
-        `, [customer_id, product_id]);
-        return ({ success: true });
+        try {
+            const [check] = await pool.query(`
+                select * from Cart where customer_id = ? and product_id = ?;
+            `, [customer_id, product_id]);
+            if (check.length === 0)
+                return error({ error: "No product is added by this customer" });
+            const [remove] = await pool.query(`
+                delete from Cart where customer_id = ? and product_id = ?;    
+            `, [customer_id, product_id]);
+            return ({ success: true });
+        } catch (error) {
+            console.error(error);
+            return { error: error.message };
+        }
     },
 
     changeNumberinCart: async ({ customer_id, product_id, quantity }) => {
-        const [check] = await pool.query(`
-            select * from Cart where customer_id = ?;
-        `, [customer_id]);
-        if (check.length === 0)
-            return error({ error: "No product is added by this customer" });
-        const [update] = await pool.query(`
-            update Cart set quantity = ? where customer_id = ? and product_id = ?; 
-        `, [quantity, customer_id, product_id]);
-        return ({ success: true });
+        try {
+            const [check] = await pool.query(`
+                select * from Cart where customer_id = ?;
+            `, [customer_id]);
+            if (check.length === 0)
+                return error({ error: "No product is added by this customer" });
+            if (quantity === 0) {
+                return await module.exports.removeCart({ customer_id, product_id });
+            }
+            await pool.query(`
+                update Cart set quantity = ? where customer_id = ? and product_id = ?; 
+            `, [quantity, customer_id, product_id]);
+            return ({ success: true });
+        } catch (error) {
+            console.error(error);
+            return { error: error.message };
+        }
     }
 };
 

@@ -9,20 +9,33 @@ create table User (
 );
 
 create table Product (
-	product_id int primary key not null auto_increment,
-    seller_id int,
+	product_id int not null auto_increment,
+    seller_id int not null,
     product_name varchar(20),
-    price int,
+    price int not null,
     quantity int,
+    image_url varchar(255),
+    release_date datetime default current_timestamp,
+    primary key (product_id, seller_id),
     foreign key (seller_id) references User (user_id) on delete cascade
 );
 
 create table Cart (
-	customer_id int,  
+    cart_id int primary key not null auto_increment,
     product_id int, 
-    item_state enum("Cart", "Bought"),
+	customer_id int,  
     quantity int,
-    primary key (customer_id, product_id),
+    foreign key (customer_id) references User (user_id) on delete cascade,
+    foreign key (product_id) references Product (product_id) on delete cascade
+);
+
+create table Transaction (
+    transaction_id int primary key not null auto_increment,
+    customer_id int,
+    product_id int,
+    quantity int, 
+    purchase_price int,
+    purchase_date datetime default current_timestamp,
     foreign key (customer_id) references User (user_id) on delete cascade,
     foreign key (product_id) references Product (product_id) on delete cascade
 );
