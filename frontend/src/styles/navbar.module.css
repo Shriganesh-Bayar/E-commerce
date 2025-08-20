@@ -1,0 +1,46 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(19, 23, 32, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand a {
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.links {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.links a {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.links a:hover {
+    background: var(--bg-elev);
+    border-color: var(--border);
+}
+
+.cta {
+    background: var(--primary-600);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+}
