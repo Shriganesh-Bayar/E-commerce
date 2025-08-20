@@ -10,20 +10,21 @@ const Seller = {
 
             // updating if there is this same prodcut
             if (check.length !== 0) {
-                await pool.query(`
-                    update product set price = ?, quantity = quantity + ?, image_url = ?, release_date = current_timestamp where product_id = ?
-                `, [price, quantity, image, product_id]);
+                const [update] = await pool.query(`
+                    update Product set price = ?, quantity = quantity + ?, image_url = ?, release_date = current_timestamp where seller_id = ? and product_name = ?;
+                `, [price, quantity, image, seller_id, product_name]);
                 return ({
                     success: true,
-                    product_id: add.product_id
+                    product_id: update.product_id
                 });
             }
 
             // add new product
-            await pool.query(`
-                insert into Product (seller_id, product_name, price, quantity, image) values
+            const [add] = await pool.query(`
+                insert into Product (seller_id, product_name, price, quantity, image_url) values
                 (?, ?, ?, ?, ?); 
             `, [seller_id, product_name, price, quantity, image]);
+            console.log(add);
             return ({
                 success: true,
                 product_id: add.product_id

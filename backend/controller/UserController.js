@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/User');
-const jwt = require('jsonwebtoken');
 const { all } = require('../routes/UserRouter');
 
 const login = async (req, res, next) => {
@@ -41,16 +40,19 @@ const myProducts = async (req, res, next) => {
         const result = await User.getMyProducts(req.params.seller_id);
         if (result.error)
             return res.json({ error: result.error });
+        console.log("controler", result);
         res.json({ result });
     } catch (error) {
-        // console.log(error);
+        console.log("controller", error);
         next(error);
     }
 }
 
 const otherProducts = async (req, res, next) => {
     try {
+        console.log("Debug: ",req.params);
         const result = await User.getAllProducts(req.params.seller_id);
+        console.log(result);
         if (result.error)
             return res.json({ error: result.error });
         res.json({ result });

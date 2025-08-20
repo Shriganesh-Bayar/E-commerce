@@ -85,20 +85,22 @@ const User = {
     getMyProducts: async (user_id) => {
         try {
             const [rows] = await pool.query(`
-                select * from Cart where seller_id = ? and quantity > 0;    
+                select * from Product where seller_id = ? and quantity > 0;    
             `, [user_id]);
+            console.log("model", rows);
             return rows;
         } catch (error) {
-            console.log(error);
+            console.log("model ",error);
             return {error: error.message}
         }
     },
 
-    getAllProducts: async (user_id) => {
+    getAllProducts: async (customer_id) => {
         try {
             const [rows] = await pool.query(`
-                select * from Cart where seller_id != ? and quantity > 0;    
-            `, [user_id]);
+                select * from Product where seller_id != ? and quantity > 0;    
+            `, [customer_id]);
+            console.log(rows);
             return rows;
         } catch (error) {
             console.log(error);
