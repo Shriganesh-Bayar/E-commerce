@@ -9,14 +9,13 @@ create table User (
 );
 
 create table Product (
-	product_id int not null auto_increment,
+	product_id int primary key not null auto_increment,
     seller_id int not null,
     product_name varchar(20),
     price int not null,
     quantity int,
     image_url varchar(255),
     release_date datetime default current_timestamp,
-    primary key (product_id, seller_id),
     foreign key (seller_id) references User (user_id) on delete cascade
 );
 

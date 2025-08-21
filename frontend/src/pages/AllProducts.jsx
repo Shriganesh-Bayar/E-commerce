@@ -19,8 +19,9 @@ export default function AllProducts() {
         try {
             const data = await ProductAPI.allProducts(user.user_id);
             console.log(data);
-            setItems(data?.result);
+            setItems(data?.result||[]);
         } catch (e) {
+            // console.log(e);
             alert(e?.response?.data?.error || "Failed to load products");
         } finally {
             setLoading(false);

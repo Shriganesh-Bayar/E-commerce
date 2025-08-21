@@ -2,6 +2,7 @@ const Customer = require('../model/Customer');
 
 const addtoCart = async (req, res, next) => {
     try {
+        console.log("req.body = ", req.body);
         const result = await Customer.addCart(req.body.data);
         if (result.error)
             return res.json({ error: result.error });

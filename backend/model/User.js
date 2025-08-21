@@ -22,7 +22,7 @@ const User = {
             });
         } catch (error) {
             console.log(error);
-            return {error: error.message}
+            return { error: error.message }
         }
     },
 
@@ -45,7 +45,7 @@ const User = {
             return { error: "Incorrect password" }
         } catch (error) {
             console.log(error);
-            return {error: error.message}
+            return { error: error.message }
         }
     },
 
@@ -66,19 +66,20 @@ const User = {
             return { error: "Wrong password" }
         } catch (error) {
             console.log(error);
-            return {error: error.message}
+            return { error: error.message }
         }
     },
 
     getCart: async (user_id) => {
         try {
             const [rows] = await pool.query(`
-                select * from Cart where customer_id = ?;    
+                select c.cart_id as cart_id, c.customer_id as user_id, p.image_url as image_url, c.quantity as quantity, c.quantity * p.price as price  
+                from Cart c, Product p where c.product_id = p.product_id and c.customer_id = ?;    
             `, [user_id]);
             return rows;
         } catch (error) {
-            console.log(error);
-            return {error: error.message}
+            console.log("getcart = ", error);
+            return { error: error.message }
         }
     },
 
@@ -90,8 +91,8 @@ const User = {
             console.log("model", rows);
             return rows;
         } catch (error) {
-            console.log("model ",error);
-            return {error: error.message}
+            console.log("model ", error);
+            return { error: error.message }
         }
     },
 
@@ -104,15 +105,25 @@ const User = {
             return rows;
         } catch (error) {
             console.log(error);
-            return {error: error.message}
+            return { error: error.message }
         }
     },
 
     getHistory: async (user_id) => {
         try {
             const [rows] = await pool.query(`
-                select * from History where customer_id = ?"    
-            `, [user_id]);
+                SELECT 
+                    t.transaction_id AS transaction_id,
+                    t.customer_id AS user_id,
+                    p.product_name AS product_name,
+                    p.image_url AS image_url,
+                    t.quantity AS quantity,
+                    t.purchase_price AS price,
+                    t.purchase_date AS purchase_date
+                FROM Transaction t
+                JOIN Product p ON t.product_id = p.product_id
+                WHERE t.customer_id = ?;
+            `, [Number(user_id)]);
             return rows;
         } catch (error) {
             console.log(error);

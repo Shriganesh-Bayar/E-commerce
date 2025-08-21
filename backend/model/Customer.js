@@ -13,9 +13,9 @@ const Customer = {
                 `, [quantity, customer_id, product_id]);
             } else {
                 await pool.query(`
-                    insert into Cart (customer_id, product_id, quantity, price) values
-                    (?, ?, ?, ?); 
-                `, [customer_id, product_id, quantity, quantity * unit_price]);
+                    insert into Cart (customer_id, product_id, quantity) values
+                    (?, ?, ?); 
+                `, [customer_id, product_id, quantity]);
             }``
             return ({ success: true });
         } catch (error) {
@@ -52,10 +52,9 @@ const Customer = {
             }
 
             for (const { product_id, quantity, unit_price } of check) {
-                const price = quantity * unit_price;
                 await con.query(`
-                    insert into Transaction (customer_id, product_id, quantity, price) values (?, ?, ?, ?)
-                `, [customer_id, product_id, quantity, price]);
+                    insert into Transaction (customer_id, product_id, quantity, purchase_price) values (?, ?, ?, ?)
+                `, [customer_id, product_id, quantity, unit_price]);
 
                 await con.query(`
                     update Product set quantity = quantity - ? where product_id = ?                 

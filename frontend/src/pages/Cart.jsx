@@ -12,7 +12,8 @@ export default function Cart() {
         setLoading(true);
         try {
             const data = await CartAPI.myCart(Number(customerId));
-            setItems(Array.isArray(data) ? data : data?.cart || []);
+            console.log(data);
+            setItems(data?.result||[]);
         } catch (e) {
             alert(e?.response?.data?.error || "Failed to load cart");
         } finally {

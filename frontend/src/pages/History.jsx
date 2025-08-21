@@ -12,7 +12,8 @@ export default function History() {
         setLoading(true);
         try {
             const data = await HistoryAPI.myHistory(Number(customerId));
-            setRows(Array.isArray(data) ? data : data?.history || []);
+            console.log(data);
+            setRows(data?.result    || []);
         } catch (e) {
             alert(e?.response?.data?.error || "Failed to load history");
         } finally {
